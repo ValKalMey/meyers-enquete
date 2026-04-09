@@ -152,6 +152,7 @@
 
     <!-- Remplacez l'action par votre URL Formspree : https://formspree.io/f/XXXXXXXX -->
     <form id="hidden-form" action="https://formspree.io/f/xojpzkyb" method="POST" style="display:none">
+      <input type="hidden" name="_subject"       id="h-subject" />
       <input type="hidden" name="client"         id="h-client" />
       <input type="hidden" name="intervention"   id="h-intervention" />
       <input type="hidden" name="clarte"         id="h-clarte" />
@@ -165,6 +166,7 @@
       <input type="hidden" name="facture"        id="h-facture" />
       <input type="hidden" name="nps"            id="h-nps" />
       <input type="hidden" name="commentaire"    id="h-commentaire" />
+      <input type="hidden" name="analyse"        id="h-analyse" />
     </form>
 
     <button class="eq-submit" onclick="submitForm()">Envoyer mon avis</button>
@@ -211,9 +213,57 @@
     var filled = clientFilled + intervFilled + starsFilled + npsFilled;
     document.getElementById('progress-bar').style.width = Math.round((filled / 11) * 100) + '%';
   }
+  function stars(n, max) {
+    return '★'.repeat(n) + '☆'.repeat(max - n) + ' (' + n + '/' + max + ')';
+  }
+  function buildAnalyse(client, interv, commentaire) {
+    var criteres = [
+      { label: 'Clarté de l\'intervention', val: ratings.clarte },
+      { label: 'Accompagnement',            val: ratings.accompagnement },
+      { label: 'Disponibilité',             val: ratings.disponibilite },
+      { label: 'Qualité du travail',        val: ratings.qualite },
+      { label: 'Propreté du chantier',      val: ratings.proprete },
+      { label: 'Respect des délais',        val: ratings.delais },
+      { label: 'Technicien',               val: ratings.technicien },
+      { label: 'Rapport qualité/prix',      val: ratings.prix },
+      { label: 'Clarté de la facture',      val: ratings.facture }
+    ];
+    var somme = criteres.reduce(function(acc, c) { return acc + c.val; }, 0);
+    var moyenne = (somme / criteres.length).toFixed(1);
+    var meilleur  = criteres.reduce(function(a, b) { return a.val >= b.val ? a : b; });
+    var pointFaible = criteres.reduce(function(a, b) { return a.val <= b.val ? a : b; });
+    var mention = moyenne >= 4.5 ? 'Excellent' : moyenne >= 3.5 ? 'Bon' : moyenne >= 2.5 ? 'Moyen' : 'Insuffisant';
+    var npsLabel = nps >= 9 ? 'Promoteur' : nps >= 7 ? 'Passif' : nps > 0 ? 'Détracteur' : 'Non renseigné';
+    var lignes = [
+      'CLIENT : ' + client,
+      'INTERVENTION : ' + (interv || 'Non précisée'),
+      '─────────────────────────────────'
+    ];
+    criteres.forEach(function(c) {
+      lignes.push(c.label.padEnd(26) + ' : ' + stars(c.val, 5));
+    });
+    lignes.push('─────────────────────────────────');
+    lignes.push('Moyenne globale    : ' + moyenne + '/5  →  ' + mention);
+    lignes.push('Point fort         : ' + meilleur.label + ' (' + meilleur.val + '/5)');
+    if (pointFaible.val < meilleur.val) {
+      lignes.push('Point d\'attention  : ' + pointFaible.label + ' (' + pointFaible.val + '/5)');
+    }
+    lignes.push('Recommandation NPS : ' + stars(nps, 10) + '  →  ' + npsLabel);
+    if (commentaire) {
+      lignes.push('─────────────────────────────────');
+      lignes.push('Commentaire : "' + commentaire + '"');
+    }
+    return lignes.join('\n');
+  }
   function submitForm() {
-    document.getElementById('h-client').value         = document.getElementById('client-nom').value;
-    document.getElementById('h-intervention').value   = Object.keys(interventions).filter(function(k){ return interventions[k]; }).join(', ');
+    var client      = document.getElementById('client-nom').value;
+    var interv      = Object.keys(interventions).filter(function(k){ return interventions[k]; }).join(', ');
+    var commentaire = document.getElementById('commentaire').value;
+    var somme       = Object.values(ratings).reduce(function(a,b){return a+b;},0);
+    var moyenne     = (somme / Object.keys(ratings).length).toFixed(1);
+    document.getElementById('h-subject').value        = '[Meyers] Satisfaction ' + (client || 'anonyme') + ' — ' + moyenne + '/5';
+    document.getElementById('h-client').value         = client;
+    document.getElementById('h-intervention').value   = interv;
     document.getElementById('h-clarte').value         = ratings.clarte + '/5';
     document.getElementById('h-accompagnement').value = ratings.accompagnement + '/5';
     document.getElementById('h-disponibilite').value  = ratings.disponibilite + '/5';
@@ -224,7 +274,8 @@
     document.getElementById('h-prix').value           = ratings.prix + '/5';
     document.getElementById('h-facture').value        = ratings.facture + '/5';
     document.getElementById('h-nps').value            = nps + '/10';
-    document.getElementById('h-commentaire').value    = document.getElementById('commentaire').value;
+    document.getElementById('h-commentaire').value    = commentaire;
+    document.getElementById('h-analyse').value        = buildAnalyse(client, interv, commentaire);
     var form = document.getElementById('hidden-form');
     fetch(form.action, {
       method: 'POST',
