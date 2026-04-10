@@ -150,7 +150,7 @@
         <div class="intervention-grid">
           <div class="interv-btn" id="src-reseaux" onclick="selectSource('reseaux')"><div class="interv-icon">📱</div><span class="interv-label">Réseaux sociaux</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
           <div class="interv-btn" id="src-bouche" onclick="selectSource('bouche')"><div class="interv-icon">🗣️</div><span class="interv-label">Bouche à oreille</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
-          <div class="interv-btn" id="src-amebath" onclick="selectSource('amebath')"><div class="interv-icon">🤝</div><span class="interv-label">Partenaire Amebath</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
+          <div class="interv-btn" id="src-amebath" onclick="selectSource('amebath')"><div class="interv-icon">🤝</div><span class="interv-label">Notre partenaire Amebath</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
           <div class="interv-btn" id="src-affichage" onclick="selectSource('affichage')"><div class="interv-icon">📌</div><span class="interv-label">Affichage publicitaire</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
           <div class="interv-btn" id="src-autre" onclick="selectSource('autre')" style="grid-column: 1 / -1;"><div class="interv-icon">💬</div><span class="interv-label">Autre</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
         </div>
@@ -306,7 +306,7 @@
     document.getElementById('h-facture').value        = ratings.facture + '/5';
     document.getElementById('h-nps').value            = nps + '/10';
     document.getElementById('h-commentaire').value    = commentaire;
-    var sourceLabel = { reseaux: 'Réseaux sociaux', bouche: 'Bouche à oreille', amebath: 'Partenaire Amebath', affichage: 'Affichage publicitaire', autre: 'Autre : ' + document.getElementById('source-autre-text').value };
+    var sourceLabel = { reseaux: 'Réseaux sociaux', bouche: 'Bouche à oreille', amebath: 'Notre partenaire Amebath', affichage: 'Affichage publicitaire', autre: 'Autre : ' + document.getElementById('source-autre-text').value };
     document.getElementById('h-source').value         = source ? (sourceLabel[source] || '') : '';
     document.getElementById('h-analyse').value        = buildAnalyse(client, interv, commentaire, source ? (sourceLabel[source] || '') : '');
     var form = document.getElementById('hidden-form');
