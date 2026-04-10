@@ -96,6 +96,7 @@
           <div class="interv-btn" id="interv-ventilation" onclick="toggleInterv('ventilation')"><div class="interv-icon">💨</div><span class="interv-label">Ventilation</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
           <div class="interv-btn" id="interv-photovoltaique" onclick="toggleInterv('photovoltaique')"><div class="interv-icon">☀️</div><span class="interv-label">Photovoltaïques</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
           <div class="interv-btn" id="interv-sanitaire" onclick="toggleInterv('sanitaire')"><div class="interv-icon">🚿</div><span class="interv-label">Sanitaire</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
+          <div class="interv-btn" id="interv-salledebain" onclick="toggleInterv('salledebain')"><div class="interv-icon">🛁</div><span class="interv-label">Salle de bain</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
         </div>
       </div>
     </div>
@@ -143,6 +144,23 @@
     </div>
 
     <div class="eq-section">
+      <div class="eq-section-label">Comment nous avez-vous connu ?</div>
+      <div class="eq-question">
+        <div class="eq-q-text">Par quel biais avez-vous entendu parler de nous ? <span style="font-weight:400;color:#888;font-size:13px;">(facultatif)</span></div>
+        <div class="intervention-grid">
+          <div class="interv-btn" id="src-reseaux" onclick="selectSource('reseaux')"><div class="interv-icon">📱</div><span class="interv-label">Réseaux sociaux</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
+          <div class="interv-btn" id="src-bouche" onclick="selectSource('bouche')"><div class="interv-icon">🗣️</div><span class="interv-label">Bouche à oreille</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
+          <div class="interv-btn" id="src-amebath" onclick="selectSource('amebath')"><div class="interv-icon">🤝</div><span class="interv-label">Partenaire Amebath</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
+          <div class="interv-btn" id="src-affichage" onclick="selectSource('affichage')"><div class="interv-icon">📌</div><span class="interv-label">Affichage publicitaire</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
+          <div class="interv-btn" id="src-autre" onclick="selectSource('autre')" style="grid-column: 1 / -1;"><div class="interv-icon">💬</div><span class="interv-label">Autre</span><div class="interv-check"><svg class="check-svg" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" stroke="white" stroke-width="2" fill="none"/></svg></div></div>
+        </div>
+        <div id="source-autre-wrap" style="display:none; margin-top:8px;">
+          <input class="eq-input" id="source-autre-text" placeholder="Précisez…" />
+        </div>
+      </div>
+    </div>
+
+    <div class="eq-section">
       <div class="eq-section-label">Votre avis libre</div>
       <div class="eq-question">
         <div class="eq-q-text">Un commentaire ou une suggestion ? <span style="font-weight:400;color:#888;font-size:13px;">(facultatif)</span></div>
@@ -166,6 +184,7 @@
       <input type="hidden" name="facture"        id="h-facture" />
       <input type="hidden" name="nps"            id="h-nps" />
       <input type="hidden" name="commentaire"    id="h-commentaire" />
+      <input type="hidden" name="source"         id="h-source" />
       <input type="hidden" name="analyse"        id="h-analyse" />
     </form>
 
@@ -182,13 +201,22 @@
 
 <script>
   var ratings = { clarte:0, accompagnement:0, disponibilite:0, qualite:0, proprete:0, delais:0, technicien:0, prix:0, facture:0 };
-  var interventions = { chauffage:false, ventilation:false, photovoltaique:false, sanitaire:false };
+  var interventions = { chauffage:false, ventilation:false, photovoltaique:false, sanitaire:false, salledebain:false };
   var nps = 0;
+  var source = '';
 
   function toggleInterv(type) {
     interventions[type] = !interventions[type];
     document.getElementById('interv-' + type).classList.toggle('active', interventions[type]);
     updateProgress();
+  }
+  function selectSource(val) {
+    source = (source === val) ? '' : val;
+    ['reseaux','bouche','amebath','affichage','autre'].forEach(function(s) {
+      document.getElementById('src-' + s).classList.toggle('active', source === s);
+    });
+    document.getElementById('source-autre-wrap').style.display = (source === 'autre') ? 'block' : 'none';
+    if (source !== 'autre') document.getElementById('source-autre-text').value = '';
   }
   function setStar(group, val) {
     ratings[group] = val;
@@ -216,7 +244,7 @@
   function stars(n, max) {
     return '★'.repeat(n) + '☆'.repeat(max - n) + ' (' + n + '/' + max + ')';
   }
-  function buildAnalyse(client, interv, commentaire) {
+  function buildAnalyse(client, interv, commentaire, sourceStr) {
     var criteres = [
       { label: 'Clarté de l\'intervention', val: ratings.clarte },
       { label: 'Accompagnement',            val: ratings.accompagnement },
@@ -249,6 +277,9 @@
       lignes.push('Point d\'attention  : ' + pointFaible.label + ' (' + pointFaible.val + '/5)');
     }
     lignes.push('Recommandation NPS : ' + stars(nps, 10) + '  →  ' + npsLabel);
+    if (sourceStr) {
+      lignes.push('Canal de découverte : ' + sourceStr);
+    }
     if (commentaire) {
       lignes.push('─────────────────────────────────');
       lignes.push('Commentaire : "' + commentaire + '"');
@@ -275,7 +306,9 @@
     document.getElementById('h-facture').value        = ratings.facture + '/5';
     document.getElementById('h-nps').value            = nps + '/10';
     document.getElementById('h-commentaire').value    = commentaire;
-    document.getElementById('h-analyse').value        = buildAnalyse(client, interv, commentaire);
+    var sourceLabel = { reseaux: 'Réseaux sociaux', bouche: 'Bouche à oreille', amebath: 'Partenaire Amebath', affichage: 'Affichage publicitaire', autre: 'Autre : ' + document.getElementById('source-autre-text').value };
+    document.getElementById('h-source').value         = source ? (sourceLabel[source] || '') : '';
+    document.getElementById('h-analyse').value        = buildAnalyse(client, interv, commentaire, source ? (sourceLabel[source] || '') : '');
     var form = document.getElementById('hidden-form');
     fetch(form.action, {
       method: 'POST',
